@@ -16,6 +16,9 @@ spec:
         - name: reckon-api
           image: reckon-api:latest
           imagePullPolicy: Never
+          env:
+            - name: DATABASE_URL
+              value: postgresql://postgres:admin@postgres/postgresdb?schema=public
           ports:
             - containerPort: 3001
           resources:
