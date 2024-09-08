@@ -1,23 +1,6 @@
-docker_build(
-    'reckon-api',
-    context='.',
-    dockerfile='./deploy/api.dockerfile',
-    only=['./api/'],
-    live_update=[
-        sync('./api/', '/app/'),
-        run(
-            'npm install',
-            trigger=['./api/package.json', './api/package-lock.json']
-        )
-    ]
-)
-k8s_yaml('deploy/api.yaml')
-
-k8s_resource(
-    'api',
-    port_forwards='5734:3001',
-    labels=['backend']
-)
+load('ext://configmap', 'configmap_create')
+#Create config map for web
+configmap_create('web-config', from_env_file='./web/.env.local')
 
 docker_build(
     'reckon-web',

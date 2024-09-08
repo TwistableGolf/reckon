@@ -12,15 +12,13 @@ FROM node:alpine AS builder
 WORKDIR /app
 COPY web/ ./
 COPY --from=deps /app/node_modules ./node_modules
-ARG NODE_ENV=devolpement
-RUN echo ${NODE_ENV}
-RUN NODE_ENV=${NODE_ENV} npm run build
+ENV NODE_ENV=production
+RUN npm run build
 
 # Production image, copy all the files and run next
 FROM node:alpine AS runner
 WORKDIR /app
 RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
 
 # You only need to copy next.config.js if you are NOT using the default configuration
 COPY --from=builder /app/next.config.mjs ./next.config.mjs
@@ -32,10 +30,6 @@ COPY --from=builder /app/app ./app
 COPY --from=builder /app/postcss.config.mjs ./postcss.config.mjs
 COPY --from=builder /app/tailwind.config.ts ./tailwind.config.ts
 COPY --from=builder /app/tsconfig.json ./tsconfig.json 
-
-
-
-USER nextjs
 
 # Expose
 EXPOSE 3000
