@@ -3,7 +3,6 @@
 @tailwind utilities;
 
 :root {
-  /* Your default theme */
   --background: #e6e6e6;
   --foreground: black;
 }

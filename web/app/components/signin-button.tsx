@@ -13,14 +13,14 @@ export function SignIn() {
 
           <Image
             className="dark:hidden"
-            src="github/github-mark.svg"
+            src="/github/github-mark.svg"
             alt="Github logo"
             width={20}
             height={20}
           ></Image>
           <Image
             className="dark:block hidden"
-            src="github/github-mark-white.svg"
+            src="/github/github-mark-white.svg"
             alt="Github logo"
             width={20}
             height={20}

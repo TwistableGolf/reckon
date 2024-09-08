@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String      @id @default(uuid())
+  email     String      @unique
+  name      String?
+  posts     Post[]
+  SubReckon SubReckon[]
+}
+
+model Post {
+  id          String    @id @default(uuid())
+  title       String
+  content     String?
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id])
+  subReckonId String
+  subReckon   SubReckon @relation(fields: [subReckonId], references: [name])
+}
+
+model SubReckon {
+  name        String @id
+  title       String
+  description String
+  ownerId     String
+  owner       User   @relation(fields: [ownerId], references: [id])
+  posts       Post[]
+}

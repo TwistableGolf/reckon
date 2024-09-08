@@ -27,7 +27,7 @@ done
 
 if is_postgres_available; then
     echo "PostgreSQL is available!"
-    cd "./api"
+    cd "./web"
     npx prisma db push --accept-data-loss
     exit 0 # Success
 else
