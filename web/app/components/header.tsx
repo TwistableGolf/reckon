@@ -49,12 +49,13 @@ export default async function Header({
       <ThemeSwitcher></ThemeSwitcher>
 
       {user != null ? (
-        <div className="flex grow gap-x-2 items-center justify-between">
+        <div className="flex grow gap-x-2 items-center justify-end">
           {doingOnboarding ? (
             <div></div>
           ) : (
             <h1 className="align-middle">{user?.name} </h1>
           )}
+          <div className="bg-neutral-400 h-4 w-0.5"></div>
           <div className="flex gap-4">
             <SignOut></SignOut>
           </div>

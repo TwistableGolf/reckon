@@ -8,11 +8,13 @@ datasource db {
 }
 
 model User {
-  id        String      @id @default(uuid())
-  email     String      @unique
-  name      String?
-  posts     Post[]
-  SubReckon SubReckon[]
+  id              String        @id @default(uuid())
+  email           String        @unique
+  name            String?
+  posts           Post[]
+  ownedSubReckons SubReckon[]
+  postLikes       PostLike[]
+  commentLikes    CommentLike[]
 }
 
 model Post {
@@ -32,4 +34,25 @@ model SubReckon {
   ownerId     String
   owner       User   @relation(fields: [ownerId], references: [id])
   posts       Post[]
+}
+
+model Comment {
+  id      String @id @default(uuid())
+  content String
+}
+
+model PostLike {
+  userId String
+  postId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@id(name: "likeId", [postId, userId])
+}
+
+model CommentLike {
+  userId    String
+  commentId String
+  user      User   @relation(fields: [userId], references: [id])
+
+  @@id(name: "likeId", [commentId, userId])
 }

@@ -1,43 +1,44 @@
 "use client";
 import Card from "@/components/card";
-import { useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { MdInfo } from "react-icons/md";
+import { Tooltip } from "../components/Tooltip";
+import { trpc } from "@/_trpc/client";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 interface OnboardingFormInput {
   userName: string;
 }
-function Tooltip({ tooltip }: { tooltip: string }) {
-  return (
-    <div className="group w-max relative">
-      <MdInfo className="cursor-pointer"></MdInfo>
-      <span className="pointer-events-none shadow bg-white dark:bg-neutral-900 p-1 px-2 -translate-x-1/2 rounded-md select-none absolute -top-9 left-2 w-max opacity-0 transition-opacity group-hover:opacity-100">
-        This is a username field
-      </span>
-    </div>
-  );
-}
-
 export default function OnboardingForm({ name }: { name?: string }) {
   const {
     register,
     handleSubmit,
-    setError,
     formState: { errors },
   } = useForm<OnboardingFormInput>({ mode: "onChange" });
-  const onSubmit: SubmitHandler<OnboardingFormInput> = (data) =>
-    console.log(data);
+  const router = useRouter();
+  const mutation = trpc.user.username.useMutation();
 
+  const onSubmit: SubmitHandler<OnboardingFormInput> = (data) => {
+    mutation.mutate({ username: data.userName });
+  };
+
+  useEffect(() => {
+    if (mutation.isSuccess) {
+      router.push("/");
+    } else {
+      console.log(mutation.error);
+    }
+  }, [mutation]);
 
   return (
-    <div className="flex flex-col items-center justify-center m-10">
+    <div className="flex flex-col items-center justify-center m-6">
       <Card className="p-6">
         <p className="leading-none">Hi {name}!</p>
         <p className="leading-none">
           We need a few extra details to get you set up
         </p>
         <form
-          className="mt-2 flex flex-col gap-2"
+          className="mt-2 flex flex-col gap-6"
           onSubmit={handleSubmit(onSubmit)}
         >
           <div>
@@ -45,20 +46,26 @@ export default function OnboardingForm({ name }: { name?: string }) {
               className="flex gap-x-1 items-center text-sm font-bold mb-2"
               htmlFor="username"
             >
-              Username{" "}
-              <Tooltip tooltip="This is a username field"></Tooltip>
+              Username <Tooltip tooltip="This is a username field"></Tooltip>
             </label>
             <input
-              {...register("userName", { required: "Username is required", maxLength: {
-                value: 20,
-                message: "Max length 20"
-              } })}
-              className={`shadow appearance-none rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline  ${errors.userName && "border border-red-600"}`}
+              {...register("userName", {
+                required: "Username is required",
+                maxLength: {
+                  value: 20,
+                  message: "Username must be less than 20 characters",
+                },
+              })}
+              className={`shadow appearance-none rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline  ${
+                errors.userName && "border border-red-600"
+              }`}
               placeholder="Username"
             />
             {errors.userName && (
               <div>
-                <span className="text-sm text-red-600">{errors.userName.message}</span>
+                <span className="text-sm text-red-600">
+                  {errors.userName.message}
+                </span>
               </div>
             )}
           </div>
