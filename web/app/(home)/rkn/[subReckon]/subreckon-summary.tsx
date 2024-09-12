@@ -19,8 +19,8 @@ export default async function SubReckonSummary({
     <Card>
       <Link
         href={`/rkn/${subReckon.name}`}
-        className="font-bold text-xl"
-      >{`rkn/${subReckon.name}`}</Link>
+        className="text-xl"
+      ><span>rkn/</span><span className="font-bold text-xl">{subReckon.name}</span></Link>
       <p>{subReckon.description}</p>
       <p>{0} subscribers</p>
       {authed ? (

@@ -15,16 +15,20 @@ model User {
   ownedSubReckons SubReckon[]
   postLikes       PostLike[]
   commentLikes    CommentLike[]
+  comments        Comment[]
 }
 
 model Post {
-  id          String    @id @default(uuid())
+  id          String     @id @default(uuid())
   title       String
   content     String?
   authorId    String
-  author      User      @relation(fields: [authorId], references: [id])
+  author      User       @relation(fields: [authorId], references: [id])
   subReckonId String
-  subReckon   SubReckon @relation(fields: [subReckonId], references: [name])
+  subReckon   SubReckon  @relation(fields: [subReckonId], references: [name])
+  likes       PostLike[]
+  comments    Comment[]
+  time        DateTime   @default(now())
 }
 
 model SubReckon {
@@ -37,14 +41,25 @@ model SubReckon {
 }
 
 model Comment {
-  id      String @id @default(uuid())
+  id      String   @id @default(uuid())
   content String
+  time    DateTime @default(now())
+  postId String
+  post Post @relation(fields: [postId], references: [id])
+  authorId String
+  author User @relation(fields: [authorId], references: [id])
+  likes CommentLike[]
+
+  parentCommentId String?
+  parentComment Comment? @relation(name: "CommentParent", fields: [parentCommentId], references: [id])
+  childComments Comment[] @relation(name: "CommentParent")
 }
 
 model PostLike {
   userId String
   postId String
   user   User   @relation(fields: [userId], references: [id])
+  post   Post   @relation(fields: [postId], references: [id])
 
   @@id(name: "likeId", [postId, userId])
 }
@@ -53,6 +68,7 @@ model CommentLike {
   userId    String
   commentId String
   user      User   @relation(fields: [userId], references: [id])
+  comment   Comment   @relation(fields: [commentId], references: [id])
 
   @@id(name: "likeId", [commentId, userId])
 }

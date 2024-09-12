@@ -23,11 +23,13 @@ export default function NewPostForm({
   const mutation = trpc.post.post.useMutation();
 
   const onSubmit: SubmitHandler<NewPostInput> = (data) => {
-    mutation.mutate({
-      subReckon: subReckonName,
-      content: data.content,
-      title: data.title,
-    });
+    if (!mutation.isPending) {
+      mutation.mutate({
+        subReckon: subReckonName,
+        content: data.content,
+        title: data.title,
+      });
+    }
   };
 
   useEffect(() => {
@@ -44,7 +46,7 @@ export default function NewPostForm({
         className="mt-2 flex flex-col gap-6"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <div>
+        <div className="flex flex-col gap-2">
           <label
             className="flex gap-x-1 items-center text-sm font-bold mb-2"
             htmlFor="title"
@@ -71,7 +73,12 @@ export default function NewPostForm({
               </span>
             </div>
           )}
-
+          <label
+            className="flex gap-x-1 items-center text-sm font-bold mb-2"
+            htmlFor="title"
+          >
+            Content <Tooltip tooltip="This is a Content field"></Tooltip>
+          </label>
           <input
             {...register("content", {
               required: "Content is required",

@@ -2,20 +2,22 @@ import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 import type {} from '@redux-devtools/extension' // required for devtools typing
 
-interface BearState {
-  bears: number
-  increase: (by: number) => void
+import { SortType } from '../../server/api/posts/routes'
+
+interface ReckonState {
+  sort: SortType
+  changeSort: (to: SortType) => void
 }
 
-export const useBearStore = create<BearState>()(
+export const useBearStore = create<ReckonState>()(
   devtools(
     persist(
       (set) => ({
-        bears: 0,
-        increase: (by) => set((state) => ({ bears: state.bears + by })),
+        sort: "top",
+        changeSort: (to) => set((state) => ({ sort: to})),
       }),
       {
-        name: 'bear-storage',
+        name: 'reckon-storage',
       },
     ),
   ),

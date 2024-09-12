@@ -5,6 +5,7 @@ import ThemeSwitcher from "./theme-switcher";
 import Link from "next/link";
 import { api } from "../../server/trpc/server";
 import { redirect } from "next/navigation";
+import ProfileAvatar from "./profile-avatar";
 
 interface UserSnippet {
   name?: string | null | undefined;
@@ -49,6 +50,7 @@ export default async function Header({
             <div></div>
           ) : (
             <>
+              <ProfileAvatar username={user?.name} size={24}></ProfileAvatar>
               <h1 className="align-middle">{user?.name} </h1>
               <div className="bg-neutral-400 h-4 w-0.5"></div>
             </>

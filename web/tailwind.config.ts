@@ -8,6 +8,9 @@ const config: Config = {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/*.css",
   ],
+  safelist:[
+    "ml-*"
+  ],
   theme: {
     extend: {
       backgroundImage: {

@@ -2,6 +2,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import { auth } from "../../auth";
 import { db } from "../db";
 import { ZodError } from "zod";
+import superjson from "superjson";
 
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await auth();
@@ -14,6 +15,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
 };
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
+  transformer: superjson,
   errorFormatter({ shape, error }) {
     return {
       ...shape,

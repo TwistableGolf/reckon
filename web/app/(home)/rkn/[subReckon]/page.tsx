@@ -1,13 +1,15 @@
 import { api } from "@/../server/trpc/server";
-import PostList from "@/components/posts/post-list";
 import { notFound } from "next/navigation";
 import SubReckonSummary from "./subreckon-summary";
 import SubreckonPosts from "./subreckon-posts";
+import { SortType } from "../../../../server/api/posts/routes";
 
 export default async function Page({
   params,
+  searchParams,
 }: {
   params: { subReckon: string };
+  searchParams: { sort: string };
 }) {
   let subReckon = await api.subReckon.byId(params.subReckon);
 
@@ -15,14 +17,28 @@ export default async function Page({
     return notFound();
   }
 
-  let posts = await api.post.bySubReckon(subReckon.name);
+  const validSortValues = ["top", "latest"] as const;
+  const sort: SortType = validSortValues.includes(searchParams.sort?.toLowerCase() as any)
+    ? (searchParams.sort.toLowerCase() as SortType)
+    : "top";
+
+  let posts = await api.post.bySubReckon({
+    subReckonName: subReckon.name,
+    sort: sort,
+    last: "All",
+  });
+
   return (
-    <main className="p-3 xl:mx-32 m-0 transition-all grid sm:grid-cols-3 grid-cols-1 gap-4">
-      <div className="sm:hidden block ">
+    <main className="p-3 xl:mx-32 m-0  transition-all grid sm:grid-cols-3 grid-cols-1 gap-4">
+      <div className="sm:hidden block">
         <SubReckonSummary subReckon={subReckon}></SubReckonSummary>
       </div>
       <div className="sm:col-span-2">
-        <SubreckonPosts subReckon={subReckon} initialPosts={posts}></SubreckonPosts>
+        <SubreckonPosts
+          subReckon={subReckon}
+          initialPosts={posts}
+          sort={sort}
+        ></SubreckonPosts>
       </div>
       <div className="hidden sm:block">
         <SubReckonSummary subReckon={subReckon}></SubReckonSummary>
