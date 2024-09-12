@@ -18,17 +18,12 @@ export default async function Header({
   doingOnboarding: boolean;
 }) {
   const session = await auth();
-  let t: UserSnippet | null;
+  let user: UserSnippet | null | undefined;
   if (session) {
-    t = await api.user.snippetBySession();
-    if (t == null && !doingOnboarding) {
+    user = await api.user.snippetBySession();
+    if (user == null && !doingOnboarding) {
       return redirect("/onboarding");
     }
-  }
-  let user: UserSnippet | null | undefined = null;
-
-  if (session) {
-    user = session ? await api.user.snippetBySession() : null;
   }
 
   if (doingOnboarding && user == null) {
@@ -53,9 +48,11 @@ export default async function Header({
           {doingOnboarding ? (
             <div></div>
           ) : (
-            <h1 className="align-middle">{user?.name} </h1>
+            <>
+              <h1 className="align-middle">{user?.name} </h1>
+              <div className="bg-neutral-400 h-4 w-0.5"></div>
+            </>
           )}
-          <div className="bg-neutral-400 h-4 w-0.5"></div>
           <div className="flex gap-4">
             <SignOut></SignOut>
           </div>

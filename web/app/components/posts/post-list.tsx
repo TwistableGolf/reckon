@@ -1,21 +1,12 @@
-"use client";
-import { trpc } from "@/_trpc/client";
+import { Post } from "@prisma/client";
 import PostPreview from "./post-preview";
 
-export default function PostList() {
-  let posts = trpc.post.ids.useQuery();
-
+export default function PostList({ posts }: { posts: Post[] }) {
   return (
-    <div className="md:grid grid-cols-2 flex flex-col gap-4">
-      {posts.status === "success" ? (
-        <>
-          {posts.data?.map((item, index) => {
-            return <PostPreview key={item} id={item}></PostPreview>;
-          })}
-        </>
-      ) : (
-        <></>
-      )}
+    <div className="flex flex-col gap-4">
+      {posts.map((item, index) => {
+        return <PostPreview key={item.id} post={item}></PostPreview>;
+      })}
     </div>
   );
 }

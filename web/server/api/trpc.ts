@@ -5,9 +5,9 @@ import { ZodError } from "zod";
 
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await auth();
-
+  let takedb = db();
   return {
-    db,
+    db: takedb,
     session,
     ...opts,
   };
@@ -32,15 +32,24 @@ export const createTRPCRouter = t.router;
 
 export const publicProcedure = t.procedure;
 
-export const protectedProcedure = t.procedure.use(async ({ next }) =>  {
-    let session = await auth();
-    if (!session || !session.user) {
-      throw new TRPCError({ code: "UNAUTHORIZED" });
-    }
-    return next({
-      ctx: {
-        // infers the `session` as non-nullable
-        session: { ...session, user: session.user },
-      },
-    });
-  })
+export const protectedProcedure = t.procedure.use(async ({ next, ctx }) => {
+  let session = await auth();
+  if (!session || !session.user || session.user.email == null) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+  let user = await ctx.db.user.findFirst({
+    where: {
+      email: session.user.email,
+    },
+  });
+  if (!user) {
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "Onboarding not yet complete" });
+  }
+  return next({
+    ctx: {
+      // infers the `session` as non-nullable
+      session: { ...session, user: session.user },
+      user
+    },
+  });
+});
