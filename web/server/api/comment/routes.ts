@@ -25,7 +25,7 @@ export const commentRoutes = createTRPCRouter({
       z.object({
         parentCommentId: z.string().regex(nanoid10Regex).optional(),
         postId: z.string().regex(nanoid10Regex),
-        comment: z.string(),
+        comment: z.string().max(8192),
         id: z.string().regex(nanoid10Regex).optional()
       })
     )

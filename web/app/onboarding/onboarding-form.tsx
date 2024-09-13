@@ -4,7 +4,6 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { Tooltip } from "../components/Tooltip";
 import { trpc } from "@/_trpc/client";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 interface OnboardingFormInput {
   userName: string;
@@ -16,19 +15,15 @@ export default function OnboardingForm({ name }: { name?: string }) {
     formState: { errors },
   } = useForm<OnboardingFormInput>({ mode: "onChange" });
   const router = useRouter();
-  const mutation = trpc.user.username.useMutation();
+  const mutation = trpc.user.username.useMutation({
+    onSuccess:()=>{
+      router.push("/");
+    }
+  });
 
   const onSubmit: SubmitHandler<OnboardingFormInput> = (data) => {
     mutation.mutate({ username: data.userName });
   };
-
-  useEffect(() => {
-    if (mutation.isSuccess) {
-      router.push("/");
-    } else {
-      console.log(mutation.error);
-    }
-  }, [mutation]);
 
   return (
     <Card className="p-6">

@@ -20,7 +20,11 @@ export default function NewPostForm({
     formState: { errors },
   } = useForm<NewPostInput>({ mode: "onChange" });
   const router = useRouter();
-  const mutation = trpc.post.post.useMutation();
+  const mutation = trpc.post.post.useMutation({
+    onSuccess: () => {
+      router.back();
+    },
+  });
 
   const onSubmit: SubmitHandler<NewPostInput> = (data) => {
     if (!mutation.isPending) {
@@ -31,14 +35,6 @@ export default function NewPostForm({
       });
     }
   };
-
-  useEffect(() => {
-    if (mutation.isSuccess) {
-      router.back();
-    } else {
-      console.log(mutation.error);
-    }
-  }, [mutation]);
 
   return (
     <>

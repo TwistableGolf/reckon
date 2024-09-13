@@ -8,12 +8,9 @@ export default async function Page() {
   if (!session) {
     redirect("/");
   }
-  try{
-    if (await api.user.snippetBySession()) {
-      redirect("/");
-    }
-  }catch{
-    //Ignore, not onboarded
+
+  if (await api.user.snippetBySession()) {
+    redirect("/");
   }
 
 

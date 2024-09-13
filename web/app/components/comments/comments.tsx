@@ -8,17 +8,17 @@ import { CommentWithAuthor } from "@/types/db-types";
 
 export type CommentWithLevel = CommentWithAuthor & {
   level: number;
-  children: CommentWithLevel[]
+  children: CommentWithLevel[];
 };
 
 export default function Comments({
   postSlug,
   initialComments,
-  authed
+  authed,
 }: {
   postSlug: string;
   initialComments: CommentWithAuthor[];
-  authed: boolean
+  authed: boolean;
 }) {
   let query = trpc.comment.byPost.useQuery(postSlug, {
     initialData: initialComments,
@@ -39,30 +39,30 @@ export default function Comments({
 
   if (query.isLoading) {
   } else if (query.isSuccess) {
-    let commentDictionary: { [key: string]: CommentWithLevel } = {}
+    let commentDictionary: { [key: string]: CommentWithLevel } = {};
 
-    query.data.forEach(element => {
-      commentDictionary[element.id] = { ...element, level: 0, children: []};
+    query.data.forEach((element) => {
+      commentDictionary[element.id] = { ...element, level: 0, children: [] };
     });
 
     const rootComments: CommentWithLevel[] = [];
 
-    query.data.forEach(item=>{
-      if(item.parentCommentId == null)
-      {
+    query.data.forEach((item) => {
+      if (item.parentCommentId == null) {
         rootComments.push(commentDictionary[item.id]);
-      }else{
-        commentDictionary[item.parentCommentId].children.push(commentDictionary[item.id]);
+      } else {
+        commentDictionary[item.parentCommentId].children.push(
+          commentDictionary[item.id]
+        );
       }
     });
-    function applyLevel(level: number, comment: CommentWithLevel)
-    {
+    function applyLevel(level: number, comment: CommentWithLevel) {
       comment.level = level;
-      comment.children.forEach(element => {
+      comment.children.forEach((element) => {
         applyLevel(level + 1, element);
       });
     }
-    rootComments.forEach(element => {
+    rootComments.forEach((element) => {
       applyLevel(0, element);
     });
 
@@ -74,7 +74,14 @@ export default function Comments({
         </h1>
         <div className="flex flex-col gap-4">
           {rootComments.map((item, index) => {
-            return <CommentTile authed={authed} key={item.id} comment={item} replyPosted={query.refetch}></CommentTile>;
+            return (
+              <CommentTile
+                authed={authed}
+                key={item.id}
+                comment={item}
+                replyPosted={query.refetch}
+              ></CommentTile>
+            );
           })}
         </div>
       </div>

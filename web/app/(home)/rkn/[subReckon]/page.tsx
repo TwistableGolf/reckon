@@ -18,7 +18,9 @@ export default async function Page({
   }
 
   const validSortValues = ["top", "latest"] as const;
-  const sort: SortType = validSortValues.includes(searchParams.sort?.toLowerCase() as any)
+  const sort: SortType = validSortValues.includes(
+    searchParams?.sort?.toLowerCase() as any
+  )
     ? (searchParams.sort.toLowerCase() as SortType)
     : "top";
 
@@ -31,17 +33,29 @@ export default async function Page({
   return (
     <main className="p-3 xl:mx-32 m-0  transition-all grid sm:grid-cols-3 grid-cols-1 gap-4">
       <div className="sm:hidden block">
-        <SubReckonSummary subReckon={subReckon}></SubReckonSummary>
+        <SubReckonSummary
+          subReckon={subReckon}
+          onHome={true}
+        ></SubReckonSummary>
       </div>
       <div className="sm:col-span-2">
-        <SubreckonPosts
-          subReckon={subReckon}
-          initialPosts={posts}
-          sort={sort}
-        ></SubreckonPosts>
+        {posts.length > 0 ? (
+          <SubreckonPosts
+            subReckon={subReckon}
+            initialPosts={posts}
+            sort={sort}
+          ></SubreckonPosts>
+        ) : (
+          <div>
+            
+          </div>
+        )}
       </div>
       <div className="hidden sm:block">
-        <SubReckonSummary subReckon={subReckon}></SubReckonSummary>
+        <SubReckonSummary
+          subReckon={subReckon}
+          onHome={true}
+        ></SubReckonSummary>
       </div>
     </main>
   );

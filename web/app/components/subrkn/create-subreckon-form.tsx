@@ -52,6 +52,10 @@ export default function CreateSubreckonForm() {
           <input
             {...register("subReckonName", {
               required: "Subreckon name is required",
+              pattern: {
+                value: /^[A-Za-z0-9]+$/,
+                message: "Subreckon name can only contain letters and numbers"
+              },
               maxLength: {
                 value: 20,
                 message: "Subreckon name must be less than 20 characters",

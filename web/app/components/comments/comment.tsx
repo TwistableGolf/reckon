@@ -3,7 +3,7 @@ import Card from "../card";
 import ProfileAvatar from "../profile-avatar";
 import { GoHeart, GoReply } from "react-icons/go";
 import { CommentWithLevel } from "./comments";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { MdAdd, MdRemove } from "react-icons/md";
 import Reply from "./reply";
 
@@ -11,41 +11,48 @@ export default function CommentTile({
   comment,
   className,
   authed,
-  replyPosted
+  replyPosted,
 }: {
   comment: CommentWithLevel;
   className?: string;
   authed: boolean;
-  replyPosted: ()=>void
+  replyPosted: () => void;
 }) {
   const [expanded, setexpanded] = useState(false);
 
   const [showReply, setShowReply] = useState(false);
 
+  const replyCallback = useCallback(() => {
+    setexpanded(true);
+    setShowReply(false);
+    replyPosted();
+  }, []);
+
   return (
     <>
       <div
         className={`flex flex-col gap-2 ${className}`}
-        style={{ marginLeft: comment.level + "rem" }}
-        onClick={() => setexpanded(!expanded)}
+        style={{ marginLeft: comment.level / 2 + "rem" }}
       >
         <Card>
           <div className="flex gap-2">
             {comment.children.length > 0 && (
               <button
-                className="text-lg  flex items-center justify-center transition-colors dark:hover:bg-neutral-600 hover:bg-neutral-300  dark:bg-neutral-700 bg-neutral-200 rounded-md"
+                className="text-lg flex items-center justify-center transition-colors dark:hover:bg-neutral-600 hover:bg-neutral-300  dark:bg-neutral-700 bg-neutral-200 rounded-md"
                 onClick={() => setexpanded(!expanded)}
               >
-                {expanded ? <MdRemove size={16}></MdRemove> : <MdAdd size={16}></MdAdd>}
+                {expanded ? (
+                  <MdRemove size={16}></MdRemove>
+                ) : (
+                  <MdAdd size={16}></MdAdd>
+                )}
               </button>
             )}
-
-            {comment.children.length == 0 && <div className="w-4"></div>}
 
             <div>
               <ProfileAvatar
                 username={comment.author.name}
-                size={48}
+                size={38}
               ></ProfileAvatar>
             </div>
             <div className="flex flex-col flex-grow gap-4">
@@ -57,37 +64,48 @@ export default function CommentTile({
                   {comment?.content}
                 </p>
               </div>
+              {authed && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={(e) => e.stopPropagation}
+                    className="shadow flex gap-1 items-center justify-center transition-colors dark:hover:bg-neutral-600 hover:bg-neutral-300  dark:bg-neutral-700 bg-neutral-200 rounded-md p-0.5"
+                  >
+                    <GoHeart className="mt-[2px]" size={20}></GoHeart>
+                    <span>Like</span>
+                  </button>
 
-              <div className="flex gap-2">
-                <button
-                  onClick={(e) => e.stopPropagation}
-                  className="shadow flex gap-1 items-center justify-center transition-colors dark:hover:bg-neutral-600 hover:bg-neutral-300  dark:bg-neutral-700 bg-neutral-200 rounded-md p-0.5"
-                >
-                  <GoHeart className="mt-[2px]" size={20}></GoHeart>
-                  <span>Like</span>
-                </button>
-                <button onClick={()=>setShowReply(!showReply)} className="shadow flex gap-1 items-center justify-center transition-colors dark:hover:bg-neutral-600 hover:bg-neutral-300  dark:bg-neutral-700 bg-neutral-200 rounded-md p-0.5">
-                  <GoReply size={20}></GoReply>
-                  <span>Reply</span>
-                </button>
-              </div>
+                  <button
+                    onClick={() => setShowReply(!showReply)}
+                    className="shadow flex gap-1 items-center justify-center transition-colors dark:hover:bg-neutral-600 hover:bg-neutral-300  dark:bg-neutral-700 bg-neutral-200 rounded-md p-0.5"
+                  >
+                    <GoReply size={20}></GoReply>
+                    <span>Reply</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
+          {showReply && authed && (
+            <Reply
+              postId={comment.postId}
+              parentComment={comment}
+              onPosted={replyCallback}
+            ></Reply>
+          )}
+          {expanded &&
+            comment.children.map((item, index) => {
+              return (
+                <CommentTile
+                  className={!expanded ? "hidden" : ""}
+                  key={item.id}
+                  comment={item}
+                  authed={authed}
+                  replyPosted={replyCallback}
+                ></CommentTile>
+              );
+            })}
         </Card>
-        {showReply &&<Reply postId={comment.postId} parentComment={comment} onPosted={replyPosted}></Reply>}
       </div>
-      {expanded &&
-        comment.children.map((item, index) => {
-          return (
-            <CommentTile
-              className={!expanded ? "hidden" : ""}
-              key={item.id}
-              comment={item}
-              authed={authed}
-              replyPosted={replyPosted}
-            ></CommentTile>
-          );
-        })}
     </>
   );
 }

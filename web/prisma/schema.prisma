@@ -35,6 +35,7 @@ model Post {
 
 model SubReckon {
   name        String @id @unique
+  slug        String @unique
   description String
   ownerId     String
   owner       User   @relation(fields: [ownerId], references: [id])

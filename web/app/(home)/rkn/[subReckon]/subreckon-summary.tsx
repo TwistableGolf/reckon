@@ -6,8 +6,10 @@ import { api } from "../../../../server/trpc/server";
 
 export default async function SubReckonSummary({
   subReckon,
+  onHome
 }: {
   subReckon: SubReckon;
+  onHome: boolean;
 }) {
   var session = await auth();
   let authed = false;
@@ -19,11 +21,11 @@ export default async function SubReckonSummary({
     <Card>
       <Link
         href={`/rkn/${subReckon.name}`}
-        className="text-xl"
+        className="text-xl border-b border-black dark:border-neutral-500"
       ><span>rkn/</span><span className="font-bold text-xl">{subReckon.name}</span></Link>
       <p>{subReckon.description}</p>
       <p>{0} subscribers</p>
-      {authed ? (
+      {authed && onHome ? (
         <Link
           href={`/rkn/${subReckon.name}/new-post`}
           className="font-bold text-white text-center bg-blue-600 rounded-md"
