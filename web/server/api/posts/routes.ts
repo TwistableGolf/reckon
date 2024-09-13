@@ -1,14 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-import { v4 } from "uuid";
+import { createTRPCRouter, onboardedProcedure, publicProcedure } from "../trpc";
 
-type Post = {
-  id: string;
-  title: string;
-  content: string;
-  subReckon: string;
-};
 
 const LastEnum = z.enum(["All", "Year", "Month", "Week", "Day"]);
 export type LastType = z.infer<typeof LastEnum>;
@@ -16,10 +9,12 @@ export type LastType = z.infer<typeof LastEnum>;
 const SortEnum = z.enum(["top", "latest"]);
 export type SortType = z.infer<typeof SortEnum>;
 
+export const nanoid10Regex = /^[a-z0-9_-]{10}$/i;
+
 export const postRoutes = createTRPCRouter({
-  byId: publicProcedure.input(z.string().uuid()).query(async (opts) => {
+  bySlug: publicProcedure.input(z.string().regex(nanoid10Regex)).query(async (opts) => {
     let post = await opts.ctx.db.post.findUnique({
-      where: { id: opts.input },
+      where: { slug: opts.input },
     });
     if (post == null) {
       throw new TRPCError({
@@ -80,24 +75,20 @@ export const postRoutes = createTRPCRouter({
       });
     }),
 
-  post: protectedProcedure
+  post: onboardedProcedure
     .input(
       z.object({
         title: z.string().max(256),
         content: z.string().max(8192),
         subReckon: z.string().max(256),
-        id: z.string().uuid().optional(),
+        slug: z.string().regex(nanoid10Regex).optional(),
       })
     )
     .mutation(async (opts) => {
-      if (opts.ctx.session.user.email == null) {
-        throw new TRPCError({ code: "BAD_REQUEST" });
-      }
-
-      if (opts.input.id != null) {
+      if (opts.input.slug != null) {
         const existingPost = await opts.ctx.db.post.findUniqueOrThrow({
           where: {
-            id: opts.input.id,
+            slug: opts.input.slug,
           },
         });
 
@@ -108,13 +99,12 @@ export const postRoutes = createTRPCRouter({
 
       return await opts.ctx.db.post.upsert({
         where: {
-          id: opts.ctx.session.user.email,
+          slug: opts.ctx.user.email,
         },
         update: {
           title: opts.input.title,
         },
         create: {
-          id: v4(),
           title: opts.input.title,
           content: opts.input.content,
           authorId: opts.ctx.user.id,

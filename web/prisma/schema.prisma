@@ -8,9 +8,9 @@ datasource db {
 }
 
 model User {
-  id              String        @id @default(uuid())
+  id              String        @id @default(nanoid(10))
   email           String        @unique
-  name            String?
+  name            String
   posts           Post[]
   ownedSubReckons SubReckon[]
   postLikes       PostLike[]
@@ -19,7 +19,7 @@ model User {
 }
 
 model Post {
-  id          String     @id @default(uuid())
+  slug        String     @id @default(nanoid(10))
   title       String
   content     String?
   authorId    String
@@ -29,11 +29,12 @@ model Post {
   likes       PostLike[]
   comments    Comment[]
   time        DateTime   @default(now())
+
+  @@index([time(sort: Desc)])
 }
 
 model SubReckon {
-  name        String @id
-  title       String
+  name        String @id @unique
   description String
   ownerId     String
   owner       User   @relation(fields: [ownerId], references: [id])
@@ -41,11 +42,11 @@ model SubReckon {
 }
 
 model Comment {
-  id      String   @id @default(uuid())
+  id      String   @id @default(nanoid(10))
   content String
   time    DateTime @default(now())
   postId String
-  post Post @relation(fields: [postId], references: [id])
+  post Post @relation(fields: [postId], references: [slug])
   authorId String
   author User @relation(fields: [authorId], references: [id])
   likes CommentLike[]
@@ -59,7 +60,7 @@ model PostLike {
   userId String
   postId String
   user   User   @relation(fields: [userId], references: [id])
-  post   Post   @relation(fields: [postId], references: [id])
+  post   Post   @relation(fields: [postId], references: [slug])
 
   @@id(name: "likeId", [postId, userId])
 }

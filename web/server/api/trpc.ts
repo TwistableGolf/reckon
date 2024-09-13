@@ -39,6 +39,20 @@ export const protectedProcedure = t.procedure.use(async ({ next, ctx }) => {
   if (!session || !session.user || session.user.email == null) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
+
+  return next({
+    ctx: {
+      // infers the `session` as non-nullable
+      session: { ...session, user: session.user }
+    },
+  });
+});
+
+export const onboardedProcedure = t.procedure.use(async ({ next, ctx }) => {
+  let session = await auth();
+  if (!session || !session.user || session.user.email == null) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
   let user = await ctx.db.user.findFirst({
     where: {
       email: session.user.email,
@@ -55,3 +69,4 @@ export const protectedProcedure = t.procedure.use(async ({ next, ctx }) => {
     },
   });
 });
+

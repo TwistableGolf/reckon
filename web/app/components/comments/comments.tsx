@@ -12,13 +12,15 @@ export type CommentWithLevel = CommentWithAuthor & {
 };
 
 export default function Comments({
-  postId,
+  postSlug,
   initialComments,
+  authed
 }: {
-  postId: string;
+  postSlug: string;
   initialComments: CommentWithAuthor[];
+  authed: boolean
 }) {
-  let query = trpc.comment.byPost.useQuery(postId, {
+  let query = trpc.comment.byPost.useQuery(postSlug, {
     initialData: initialComments,
   });
   let path = usePathname();
@@ -72,7 +74,7 @@ export default function Comments({
         </h1>
         <div className="flex flex-col gap-4">
           {rootComments.map((item, index) => {
-            return <CommentTile key={item.id} comment={item}></CommentTile>;
+            return <CommentTile authed={authed} key={item.id} comment={item} replyPosted={query.refetch}></CommentTile>;
           })}
         </div>
       </div>

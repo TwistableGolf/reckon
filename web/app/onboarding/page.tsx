@@ -8,10 +8,14 @@ export default async function Page() {
   if (!session) {
     redirect("/");
   }
-
-  if (await api.user.snippetBySession()) {
-    redirect("/");
+  try{
+    if (await api.user.snippetBySession()) {
+      redirect("/");
+    }
+  }catch{
+    //Ignore, not onboarded
   }
+
 
   return (
     <div className="flex flex-col items-center justify-center m-6">

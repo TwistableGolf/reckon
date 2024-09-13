@@ -6,6 +6,7 @@ import Link from "next/link";
 import { api } from "../../server/trpc/server";
 import { redirect } from "next/navigation";
 import ProfileAvatar from "./profile-avatar";
+import { TRPCError } from "@trpc/server";
 
 interface UserSnippet {
   name?: string | null | undefined;
@@ -21,7 +22,13 @@ export default async function Header({
   const session = await auth();
   let user: UserSnippet | null | undefined;
   if (session) {
-    user = await api.user.snippetBySession();
+    try{
+      user = await api.user.snippetBySession();
+
+    }catch(err)
+    {
+      //Ignore, not onboarded
+    }
     if (user == null && !doingOnboarding) {
       return redirect("/onboarding");
     }
